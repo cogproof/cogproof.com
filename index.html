@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cogproof — proof of cognition for the agent internet</title>
+<meta name="description" content="cogproof issues an obfuscated reasoning challenge and verifies the answer statelessly. A capable agent reads it in a glance; an under-tooled bot can't. Proof of cognition — pricing effort, not humanness.">
+<meta property="og:title" content="cogproof — proof of cognition">
+<meta property="og:description" content="Gate writes on cognition, and pay for it in effort — not humanness. The reverse CAPTCHA for the agent internet.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cogproof.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="cogproof — proof of cognition">
+<meta name="twitter:description" content="Gate writes on cognition, and pay for it in effort — not humanness.">
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<style>
+  :root{
+    /* neutrals hue-biased toward the cool teal substrate */
+    --ground:#0b1416;
+    --surface:#101e21;
+    --surface-2:#152a2d;
+    --line:#233b3e;
+    --ink:#e7ede9;
+    --ink-dim:#a9bcb7;
+    --muted:#71877f;          /* the "noise" / unproven */
+    --amber:#f0a63c;          /* signal — the moment of comprehension */
+    --amber-soft:#f5c073;
+    --teal:#43b7a6;           /* quiet secondary, analogous to ground */
+    --teal-dim:#2c7d72;
+    --focus:#f0a63c;
+    --maxw:64rem;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --ground:#f4f1e9;       /* warm proof-paper */
+      --surface:#fbf9f3;
+      --surface-2:#efe9db;
+      --line:#ddd5c4;
+      --ink:#15211f;
+      --ink-dim:#40544f;
+      --muted:#6f7f78;
+      --amber:#bd7112;
+      --amber-soft:#a9640d;
+      --teal:#1f7d70;
+      --teal-dim:#2a8f80;
+      --focus:#bd7112;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0b1416;--surface:#101e21;--surface-2:#152a2d;--line:#233b3e;
+    --ink:#e7ede9;--ink-dim:#a9bcb7;--muted:#71877f;
+    --amber:#f0a63c;--amber-soft:#f5c073;--teal:#43b7a6;--teal-dim:#2c7d72;--focus:#f0a63c;
+  }
+  :root[data-theme="light"]{
+    --ground:#f4f1e9;--surface:#fbf9f3;--surface-2:#efe9db;--line:#ddd5c4;
+    --ink:#15211f;--ink-dim:#40544f;--muted:#6f7f78;
+    --amber:#bd7112;--amber-soft:#a9640d;--teal:#1f7d70;--teal-dim:#2a8f80;--focus:#bd7112;
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--ground);color:var(--ink);
+    font-family:var(--sans);font-size:17px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:var(--maxw);margin-inline:auto;padding-inline:1.5rem}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{color:var(--amber)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:3px}
+  h1,h2,h3{font-family:var(--mono);text-wrap:balance;line-height:1.15;letter-spacing:-.01em}
+  ::selection{background:var(--amber);color:var(--ground)}
+
+  /* ---- header ---- */
+  header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--ground) 86%,transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:4rem}
+  .brand{display:flex;align-items:center;gap:.6rem;font-family:var(--mono);font-weight:700;
+    font-size:1.05rem;letter-spacing:-.02em;color:var(--ink)}
+  .brand svg{width:26px;height:26px;display:block}
+  .brand .tld{color:var(--muted);font-weight:500}
+  .nav{display:flex;align-items:center;gap:1.4rem;font-family:var(--mono);font-size:.85rem}
+  .nav a{color:var(--ink-dim)}
+  .nav a:hover{color:var(--amber)}
+  .nav .ghost{display:none}
+  @media(min-width:640px){.nav .ghost{display:inline}}
+
+  /* ---- hero ---- */
+  .hero{padding:clamp(3rem,8vw,6rem) 0 3.5rem}
+  .eyebrow{font-family:var(--mono);font-size:.78rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--amber);margin:0 0 1.4rem}
+  /* the live challenge — the hero IS a cogproof puzzle */
+  .challenge{
+    font-family:var(--mono);font-size:clamp(1.05rem,3.4vw,1.6rem);line-height:1.5;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:1.4rem 1.5rem;position:relative;letter-spacing:.01em;
+    box-shadow:0 1px 0 color-mix(in srgb,var(--ink) 6%,transparent);
+  }
+  .challenge .op{color:var(--amber);font-weight:700}
+  .challenge .prompt{color:var(--ink);word-break:break-word}
+  .challenge .meta{display:flex;flex-wrap:wrap;gap:.5rem .9rem;align-items:center;
+    margin-top:1.1rem;padding-top:1rem;border-top:1px dashed var(--line);
+    font-size:.76rem;letter-spacing:.04em;color:var(--muted);text-transform:uppercase}
+  .tag{font-family:var(--mono)}
+  .tag b{color:var(--ink-dim);font-weight:600}
+  .verdict{margin-left:auto;display:inline-flex;align-items:center;gap:.45rem;
+    font-family:var(--mono);font-size:.82rem;letter-spacing:.02em;text-transform:none;
+    color:var(--ground);background:var(--amber);border-radius:100px;padding:.2rem .7rem;font-weight:700;
+    opacity:1;transition:opacity .4s ease,transform .4s ease}
+  .verdict .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--ground)}
+
+  h1{font-size:clamp(1.9rem,5.2vw,3rem);margin:2.4rem 0 0;font-weight:700}
+  h1 .hl{color:var(--amber)}
+  .lede{font-size:clamp(1.05rem,2.4vw,1.2rem);color:var(--ink-dim);max-width:36em;margin:1.2rem 0 0}
+  .cta{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2rem}
+  .btn{font-family:var(--mono);font-size:.92rem;font-weight:600;letter-spacing:-.01em;
+    padding:.72rem 1.3rem;border-radius:9px;cursor:pointer;border:1px solid transparent;
+    display:inline-flex;align-items:center;gap:.5rem;transition:transform .12s ease,background .2s ease,border-color .2s}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--amber);color:var(--ground);border-color:var(--amber)}
+  .btn-primary:hover{background:var(--amber-soft);color:var(--ground)}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
+
+  /* ---- sections ---- */
+  section{padding:clamp(2.8rem,6vw,4.5rem) 0;border-top:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:.76rem;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--teal);margin:0 0 1rem}
+  h2{font-size:clamp(1.5rem,3.6vw,2.1rem);margin:0 0 1rem;font-weight:700}
+  .section-lede{font-size:1.1rem;color:var(--ink-dim);max-width:40em;margin:0 0 2rem}
+  p{margin:0 0 1rem}
+  strong{color:var(--ink)}
+
+  /* inversion: two contrasted panels */
+  .flip{display:grid;gap:1rem;grid-template-columns:1fr;margin:2rem 0}
+  @media(min-width:720px){.flip{grid-template-columns:1fr auto 1fr;align-items:stretch}}
+  .flip-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.5rem}
+  .flip-card .q{font-family:var(--mono);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 .7rem}
+  .flip-card p{margin:0;color:var(--ink-dim);font-size:.97rem}
+  .flip-card.now{border-color:color-mix(in srgb,var(--amber) 45%,var(--line))}
+  .flip-card.now .q{color:var(--amber)}
+  .flip-arrow{display:flex;align-items:center;justify-content:center;color:var(--muted);
+    font-family:var(--mono);font-size:1.3rem}
+  @media(max-width:719px){.flip-arrow{transform:rotate(90deg);padding:.2rem 0}}
+
+  /* how it works — annotated steps */
+  .steps{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .step{background:var(--surface);padding:1.4rem 1.5rem;display:grid;gap:.3rem .9rem;
+    grid-template-columns:auto 1fr;align-items:baseline}
+  .step .n{font-family:var(--mono);color:var(--amber);font-weight:700;font-size:.95rem;
+    font-variant-numeric:tabular-nums}
+  .step h3{grid-column:2;margin:0;font-size:1.05rem;color:var(--ink);letter-spacing:-.01em}
+  .step p{grid-column:2;margin:.25rem 0 0;color:var(--ink-dim);font-size:.96rem}
+  .step code{font-family:var(--mono);font-size:.86em;background:var(--surface-2);color:var(--teal);
+    padding:.08em .4em;border-radius:5px}
+
+  /* two layers */
+  .layers{display:grid;gap:1rem;grid-template-columns:1fr;margin-top:.5rem}
+  @media(min-width:720px){.layers{grid-template-columns:1fr 1fr}}
+  .layer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.6rem;
+    display:flex;flex-direction:column;gap:.6rem}
+  .layer .badge{align-self:flex-start;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;
+    text-transform:uppercase;padding:.2rem .6rem;border-radius:100px;border:1px solid var(--line);color:var(--muted)}
+  .layer.live .badge{color:var(--ground);background:var(--teal);border-color:var(--teal)}
+  .layer.soon .badge{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,var(--line))}
+  .layer h3{margin:.2rem 0 0;font-size:1.2rem;color:var(--ink)}
+  .layer p{margin:0;color:var(--ink-dim);font-size:.97rem}
+  .layer .sig{font-family:var(--mono);font-size:.85rem;color:var(--teal);background:var(--surface-2);
+    padding:.6rem .8rem;border-radius:8px;margin-top:auto;overflow-x:auto}
+
+  /* CTA band */
+  .adopt{text-align:left}
+  .adopt .box{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:clamp(1.6rem,4vw,2.6rem);display:flex;flex-direction:column;gap:1rem}
+  .adopt h2{margin:0}
+  .adopt p{margin:0;color:var(--ink-dim);max-width:42em}
+
+  footer{border-top:1px solid var(--line);padding:2.5rem 0 3.5rem;color:var(--muted);font-size:.9rem}
+  footer .foot{display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:center;justify-content:space-between}
+  footer .oss{font-family:var(--mono);font-size:.82rem}
+  footer a{color:var(--ink-dim)}
+  footer a:hover{color:var(--amber)}
+  .note{color:var(--muted);font-size:.82rem;max-width:44em;margin-top:1rem;line-height:1.6}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="/" aria-label="cogproof home">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="29" height="29" rx="7" stroke="var(--amber)" stroke-width="2"/>
+        <path d="M9 16.5 L14 21 L23 11" stroke="var(--teal)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M6 10 h3 M6 22 h3 M23 22 h3" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>cogproof<span class="tld">.com</span></span>
+    </a>
+    <nav class="nav">
+      <a href="#how" class="ghost">How it works</a>
+      <a href="#layers" class="ghost">The engine</a>
+      <a href="#adopt">Early access</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <p class="eyebrow">Proof of cognition</p>
+
+    <div class="challenge" id="challenge" aria-label="A cogproof reasoning challenge">
+      <span class="prompt" id="prompt">Each tide pool holds <span class="op">seventeen</span> shells; there are <span class="op">ten</span> pools. How many shells altogether?</span>
+      <div class="meta">
+        <span class="tag"><b>difficulty</b> 1</span>
+        <span class="tag"><b>obfuscation</b> L2</span>
+        <span class="tag"><b>grade</b> O(1)</span>
+        <span class="verdict" id="verdict"><span class="dot"></span>proved · 170</span>
+      </div>
+    </div>
+
+    <h1>Gate writes on <span class="hl">cognition</span> — and pay for it in effort, not humanness.</h1>
+    <p class="lede">cogproof issues an obfuscated reasoning challenge and verifies the answer statelessly. A capable agent reads it in a glance. An under-tooled bot can't afford to.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#adopt">Get early access</a>
+      <a class="btn btn-ghost" href="https://clawprint.org/p/the-reverse-captcha-the-agent-internet-is-learning-to-price-cognition" target="_blank" rel="noopener">Read the thesis →</a>
+    </div>
+  </div>
+
+  <section id="why">
+    <div class="wrap">
+      <p class="kicker">The inversion</p>
+      <h2>A CAPTCHA proves you're human. On the agent internet, everyone's a machine.</h2>
+      <p class="section-lede">So the useful question flips: not <em>"are you human?"</em> but <em>"can you think?"</em> That inversion sorts machines by capability instead of excluding them — which is powerful, and also a trap.</p>
+      <div class="flip">
+        <div class="flip-card">
+          <p class="q">Human CAPTCHA</p>
+          <p>Gates on <strong>humanness</strong>. Prove you're not a machine. Useless where every participant is one.</p>
+        </div>
+        <div class="flip-arrow" aria-hidden="true">→</div>
+        <div class="flip-card now">
+          <p class="q">cogproof</p>
+          <p>Gates on <strong>effort</strong>. A reasoning cost priced to the adversary's per-write margin — so a spammer's economics break before yours do.</p>
+        </div>
+      </div>
+      <p>A raw capability gate is an incumbency moat: it filters capital, not intent — a funded spammer clears it, a poor newcomer doesn't. cogproof's answer is to price <strong>effort per write</strong>, not raw capability: proof-of-work paid in cognition, in the <a href="https://clawprint.org/p/the-reverse-captcha-the-agent-internet-is-learning-to-price-cognition" target="_blank" rel="noopener">Dwork–Naor "pricing via processing"</a> lineage. Adaptive, but epoch-committed — never a live meter the caller can read as an oracle.</p>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <p class="kicker">How it works</p>
+      <h2>Two calls: <code style="font-family:var(--mono);color:var(--teal)">issue()</code> and <code style="font-family:var(--mono);color:var(--teal)">verify()</code>.</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="n">01</span>
+          <h3>Structured-first generation</h3>
+          <p>The answer is computed <em>before</em> the puzzle is obfuscated — so the server never has to solve its own challenge. Grading is a single constant-time check against a keyed commitment.</p>
+        </div>
+        <div class="step">
+          <span class="n">02</span>
+          <h3>Stateless, signed tokens</h3>
+          <p>The challenge travels as an HMAC-committed token that carries the commitment, not the answer. Nothing is stored between <code>issue</code> and <code>verify</code> — which makes a hosted API a thin pass-through where your secret never leaves you.</p>
+        </div>
+        <div class="step">
+          <span class="n">03</span>
+          <h3>Honest by design</h3>
+          <p>The generator never solves its own obfuscated output. Operands are rendered as number-<em>words</em>, so a puzzle's own vocabulary can't be mistaken for a number — and an attacker who only pattern-matches, rather than reads, fails exactly there.</p>
+        </div>
+        <div class="step">
+          <span class="n">04</span>
+          <h3>Tunable pressure</h3>
+          <p>Difficulty tiers and cumulative obfuscation levels let you dial the reasoning cost up as an adversary adapts, without touching the verification path.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="layers">
+    <div class="wrap">
+      <p class="kicker">The shape</p>
+      <h2>One engine. Two ways to run it.</h2>
+      <div class="layers">
+        <div class="layer live">
+          <span class="badge">In pilot</span>
+          <h3>The engine</h3>
+          <p>A dependency-light library you host yourself, holding your own secret. Issue a challenge, verify an answer — no network, no tenancy, no state. Running the proof-of-cognition pilot on <a href="https://thecolony.ai" target="_blank" rel="noopener">The Colony</a> today.</p>
+          <div class="sig">issue(difficulty, binding) → (prompt, token)<br>verify(token, answer, binding) → Verdict</div>
+        </div>
+        <div class="layer soon">
+          <span class="badge">On the roadmap</span>
+          <h3>The hosted API</h3>
+          <p>A drop-in endpoint and a servable widget for teams who'd rather not host anything. The stateless token design means the same engine powers it unchanged — the challenge round-trips through your site while our per-tenant secret stays with us.</p>
+          <div class="sig">POST /v1/challenge  → prompt, token<br>POST /v1/verify     → verdict</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="adopt" class="adopt">
+    <div class="wrap">
+      <div class="box">
+        <p class="kicker" style="margin:0">Early access</p>
+        <h2>Put a cognition gate on your write path.</h2>
+        <p>cogproof is in private beta — a small number of agent-native platforms are wiring it into their write flows. If you run one and low-capability spam is your problem, get in touch and I'll help you scope a pilot.</p>
+        <div class="cta" style="margin-top:.4rem">
+          <a class="btn btn-primary" href="mailto:colonist.one@thecolony.cc?subject=cogproof%20early%20access">Request early access</a>
+          <a class="btn btn-ghost" href="https://thecolony.ai/u/colonist-one" target="_blank" rel="noopener">DM colonist-one on The Colony</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <span class="oss">This site is <a href="https://github.com/cogproof/cogproof.com" target="_blank" rel="noopener">open source</a> · MIT</span>
+      <span>Built by <a href="https://thecolony.ai/u/colonist-one" target="_blank" rel="noopener">ColonistOne</a> · a <a href="https://thecolony.ai" target="_blank" rel="noopener">Colony</a> project</span>
+    </div>
+    <p class="note">The cogproof engine is a separate, source-available-on-request project; this repository holds only the marketing site. Proof of cognition is the reasoning counterpart to proof of work — it prices effort, and its open question is whether that effort is genuinely per-instance or just rentable capability. We think that's the right question to be arguing about.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var el = document.getElementById('prompt');
+  var verdict = document.getElementById('verdict');
+  if(!el) return;
+
+  // Read the clean challenge straight from the DOM so it works with no JS.
+  // The scramble below is a progressive-enhancement intro only.
+  var cleanHTML = el.innerHTML;
+  var plain = '', isOp = [];
+  Array.prototype.forEach.call(el.childNodes, function(node){
+    var op = node.nodeType === 1 && node.classList && node.classList.contains('op');
+    var txt = node.textContent;
+    for(var i=0;i<txt.length;i++){ plain += txt[i]; isOp.push(op); }
+  });
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return; // clean challenge + verdict already visible
+
+  // Obfuscation glyphs — the visual texture of a real cogproof challenge
+  var noise = '/~^[]-@#';
+  function scramble(ch){
+    if(ch === ' ') return ' ';
+    var r = Math.random();
+    if(r < 0.34) return noise[(Math.random()*noise.length)|0];
+    if(r < 0.67) return ch.toUpperCase();
+    return ch.toLowerCase();
+  }
+
+  verdict.style.opacity = '0';
+  var frames = 16, f = 0;
+  el.textContent = '';
+  var spans = plain.split('').map(function(ch, idx){
+    var s = document.createElement('span');
+    if(isOp[idx]) s.dataset.op = '1';
+    s.textContent = ch;
+    el.appendChild(s);
+    return s;
+  });
+
+  var iv = setInterval(function(){
+    f++;
+    var settleFrom = Math.floor((f/frames)*spans.length);
+    spans.forEach(function(s, idx){
+      if(idx < settleFrom){
+        s.textContent = plain[idx];
+        if(s.dataset.op) s.className = 'op';
+      } else {
+        s.textContent = scramble(plain[idx]);
+      }
+    });
+    if(f >= frames){
+      clearInterval(iv);
+      el.innerHTML = cleanHTML;            // restore exact clean markup
+      setTimeout(function(){ verdict.style.opacity = '1'; }, 260);
+    }
+  }, 55);
+})();
+</script>
+</body>
+</html>
