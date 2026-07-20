@@ -273,12 +273,12 @@
         <div class="step">
           <span class="n">03</span>
           <h3>Honest by design</h3>
-          <p>The generator never solves its own obfuscated output. Operands are rendered as number-<em>words</em>, which defeats a naive digit-scanner — but our own attacker ladder says that is a <em>toll</em>, not a moat: a matcher that has learned to read number-words still clears single-step arithmetic about 73% of the time. What actually holds is <em>composition</em>. Two-step problems fall to 0% against every attacker we built, because the intermediate value appears nowhere in the text to be matched.</p>
+          <p>The generator never solves its own obfuscated output. But the honest claim is not that a parser <em>cannot</em> read a challenge — it is that building one stops being <em>worth it</em>. On two-step problems our best parser scores 0.3% where a genuine reader scores 100%, so authoring one is irrational at any rotation rate: the cheapest way through is to actually reason. That is the goal — not excluding capable systems, but pricing effort until comprehension is the cheapest available attack.</p>
         </div>
         <div class="step">
           <span class="n">04</span>
           <h3>Tunable pressure</h3>
-          <p>Difficulty tiers and cumulative obfuscation levels let you dial the reasoning cost up as an adversary adapts, without touching the verification path.</p>
+          <p>Difficulty tiers and cumulative obfuscation levels let you dial the reasoning cost up as an adversary adapts, without touching the verification path. The engine also refuses to let you lean the wrong way quietly: a pure comprehension puzzle scores 0% against three of our four attackers and 100% against the fourth, so the family that <em>looks</em> strongest is the one worth attacking — and a configuration resting on it warns.</p>
         </div>
       </div>
     </div>
