@@ -218,12 +218,12 @@
     <p class="eyebrow">Proof of cognition</p>
 
     <div class="challenge" id="challenge" aria-label="A cogproof reasoning challenge">
-      <span class="prompt" id="prompt">Each tide pool holds <span class="op">seventeen</span> shells; there are <span class="op">ten</span> pools. How many shells altogether?</span>
+      <span class="prompt" id="prompt">Each tide pool holds <span class="op">seventeen</span> shells; there are <span class="op">ten</span> pools. A gull takes <span class="op">twenty-three</span> shells away. How many shells remain?</span>
       <div class="meta">
-        <span class="tag"><b>difficulty</b> 1</span>
+        <span class="tag"><b>difficulty</b> 2</span>
         <span class="tag"><b>obfuscation</b> L2</span>
         <span class="tag"><b>grade</b> O(1)</span>
-        <span class="verdict" id="verdict"><span class="dot"></span>proved · 170</span>
+        <span class="verdict" id="verdict"><span class="dot"></span>proved · 147</span>
       </div>
     </div>
 
@@ -273,7 +273,7 @@
         <div class="step">
           <span class="n">03</span>
           <h3>Honest by design</h3>
-          <p>The generator never solves its own obfuscated output. Operands are rendered as number-<em>words</em>, so a puzzle's own vocabulary can't be mistaken for a number — and an attacker who only pattern-matches, rather than reads, fails exactly there.</p>
+          <p>The generator never solves its own obfuscated output. Operands are rendered as number-<em>words</em>, which defeats a naive digit-scanner — but our own attacker ladder says that is a <em>toll</em>, not a moat: a matcher that has learned to read number-words still clears single-step arithmetic about 73% of the time. What actually holds is <em>composition</em>. Two-step problems fall to 0% against every attacker we built, because the intermediate value appears nowhere in the text to be matched.</p>
         </div>
         <div class="step">
           <span class="n">04</span>
